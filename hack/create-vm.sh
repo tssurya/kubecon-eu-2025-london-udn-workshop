@@ -26,6 +26,7 @@ virt-customize -a $origfile --update \
     --selinux-relabel
  virt-customize -a $origfile \
     --install vim,tmux,git,wget,direnv,zsh,make,docker-ce,docker-ce-cli,containerd.io,docker-buildx-plugin,docker-compose-plugin,curl,jq,openssl,golang,python3-pip \
+    --run-command "[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 && chmod +x kind && mv kind /usr/local/bin" \
     --selinux-relabel
 
 image=$name.img
