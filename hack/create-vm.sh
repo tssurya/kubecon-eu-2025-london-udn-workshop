@@ -27,7 +27,7 @@ virt-customize -a $origfile --update \
  virt-customize -a $origfile \
     --install vim,tmux,git,wget,direnv,zsh,make,docker-ce,docker-ce-cli,containerd.io,docker-buildx-plugin,docker-compose-plugin,curl,jq,openssl,golang,python3-pip \
     --firstboot-command "systemctl enable --now docker && sysctl -w net.ipv6.conf.all.forwarding=1" \
-    --run-command "[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 && chmod +x kind && mv kind /usr/local/bin" \
+    --run-command "[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64 && chmod +x kind && mv kind /usr/local/bin && VERSION=$(curl -s https://storage.googleapis.com/kubevirt-prow/release/kubevirt/kubevirt/stable.txt) && ARCH=$(uname -s | tr A-Z a-z)-$(uname -m | sed 's/x86_64/amd64/') || windows-amd64.exe && curl -L -o virtctl https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-${ARCH} && chmod +x virtctl && install virtctl /usr/local/bin" \
     --selinux-relabel
 
 image=$name.img
