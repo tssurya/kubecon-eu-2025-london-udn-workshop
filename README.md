@@ -114,3 +114,8 @@ and KubeVirt deployed.
 ```sh
 pushd ovn-kubernetes/contrib/ && ./kind.sh -ic -mne -nse -i6 -ikv && popd
 ```
+
+3. Export the kind cluster kubeconfig
+```sh
+kind export kubeconfig --name ovn
+```
