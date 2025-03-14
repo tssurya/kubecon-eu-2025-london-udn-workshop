@@ -172,5 +172,39 @@ PING www.google.com (142.250.178.164) 56(84) bytes of data.
 rtt min/avg/max/mdev = 31.340/31.795/32.250/0.455 ms
 ```
 
-Now that we manage to egress the cluster using the UDN, we can proceed to the VM migration use case.
+8. East/west traffic over the UDN
+Let's also ensure the east/west traffic works as expected in the UDN. For that, we first need to figure out
+the IP address of one VM, and ping from the other.
+```sh
+[root@fc40 ~]# kubectl get vmi -n blue-namespace blue -ojsonpath="{@.status.interfaces}" | jq
+[
+  {
+    "infoSource": "domain, guest-agent",
+    "interfaceName": "eth0",
+    "ipAddress": "192.168.0.4",
+    "ipAddresses": [
+      "192.168.0.4"
+    ],
+    "linkState": "up",
+    "mac": "0a:58:c0:a8:00:04",
+    "name": "happy",
+    "podInterfaceName": "ovn-udn1",
+    "queueCount": 1
+  }
+]
+
+# now from the other VM:
+[root@fc40 ~]# virtctl console -nred-namespace red
+Successfully connected to red console. The escape sequence is ^]
+
+[fedora@red ~]$
+[fedora@red ~]$ ping 192.168.0.4
+PING 192.168.0.4 (192.168.0.4) 56(84) bytes of data.
+64 bytes from 192.168.0.4: icmp_seq=1 ttl=64 time=6.56 ms
+64 bytes from 192.168.0.4: icmp_seq=2 ttl=64 time=3.33 ms
+
+--- 192.168.0.4 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 3.327/4.943/6.560/1.616 ms
+```
 
