@@ -119,3 +119,15 @@ pushd ovn-kubernetes/contrib/ && ./kind.sh -ic -mne -nse -i6 -ikv && popd
 ```sh
 kind export kubeconfig --name ovn
 ```
+
+4. Clone the workshop repo on the VM
+```sh
+git clone https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop.git
+```
+
+5. Apply the UDN and the workload manifests
+```sh
+kubectl apply -f kubecon-eu-2025-london-udn-workshop/manifests/virt/01-udn.yaml
+kubectl apply -f kubecon-eu-2025-london-udn-workshop/manifests/virt/02-workloads.yaml
+```
+
