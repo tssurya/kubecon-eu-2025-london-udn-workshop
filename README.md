@@ -137,3 +137,40 @@ kubectl wait vmi -nred-namespace red --for=jsonpath='{.status.phase}'=Running
 kubectl wait vmi -nblue-namespace blue --for=jsonpath='{.status.phase}'=Running
 ```
 
+7. Log into the VMs and ensure egress works as expected
+Once the VMs are `Running`, we can now log into them via the console, using the `virtctl` CLI.
+```sh
+[root@fc40 ~]# virtctl console -nred-namespace red
+Successfully connected to red console. The escape sequence is ^]
+
+red login: fedora
+Password:
+[fedora@red ~]$ ip r
+default via 192.168.0.1 dev eth0 proto dhcp metric 100
+192.168.0.0/16 dev eth0 proto kernel scope link src 192.168.0.3 metric 100
+[fedora@red ~]$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1400 qdisc fq_codel state UP group default qlen 1000
+    link/ether 0a:58:c0:a8:00:03 brd ff:ff:ff:ff:ff:ff
+    altname enp1s0
+    inet 192.168.0.3/16 brd 192.168.255.255 scope global dynamic noprefixroute eth0
+       valid_lft 3116sec preferred_lft 3116sec
+    inet6 fe80::858:c0ff:fea8:3/64 scope link
+       valid_lft forever preferred_lft forever
+[fedora@red ~]$ ping -c 2 www.google.com
+PING www.google.com (142.250.178.164) 56(84) bytes of data.
+64 bytes from 142.250.178.164 (142.250.178.164): icmp_seq=1 ttl=56 time=32.3 ms
+64 bytes from 142.250.178.164 (142.250.178.164): icmp_seq=2 ttl=56 time=31.3 ms
+
+--- www.google.com ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 31.340/31.795/32.250/0.455 ms
+```
+
+Now that we manage to egress the cluster using the UDN, we can proceed to the VM migration use case.
+
