@@ -131,3 +131,9 @@ kubectl apply -f kubecon-eu-2025-london-udn-workshop/manifests/virt/01-udn.yaml
 kubectl apply -f kubecon-eu-2025-london-udn-workshop/manifests/virt/02-workloads.yaml
 ```
 
+6. Wait for the VMs to be running
+```sh
+kubectl wait vmi -nred-namespace red --for=jsonpath='{.status.phase}'=Running
+kubectl wait vmi -nblue-namespace blue --for=jsonpath='{.status.phase}'=Running
+```
+
