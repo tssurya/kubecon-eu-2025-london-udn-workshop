@@ -7,12 +7,23 @@ You'll require the following packages to run it:
 - libvirt
 - kvm
 - QEMU
+- guestfs-tools
 
 The VM has the following requirements:
 - 8 GBi RAM
 - 100 GBi disk space
 
 The VM will be created with the environment to run this demo.
+
+Since part of the workshop will spin up VMs in the Kind cluster - thus creating VMs inside the workshop VM -
+you need to enable nested virtualization in your hypervisor (laptop). While there are many options, we do
+recommend the KVM / Libvirt / QEMU stack on
+[fedora](https://docs.fedoraproject.org/en-US/fedora-server/virtualization/installation/).
+
+To install the packages listed above, run the following command on your Hypervisor (assuming you're on Fedora ...):
+```sh
+dnf install qemu-kvm-core libvirt virt-install cockpit-machines guestfs-tools
+```
 
 ## Creating the VM
 1. Clone our workshop repo
