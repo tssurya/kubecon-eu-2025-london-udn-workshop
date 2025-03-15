@@ -17,7 +17,7 @@ The VM will be created with the environment to run this demo.
 ## Creating the VM
 1. Clone our workshop repo
 ```sh
-git clone https://github.com/ovn-kubernetes/ovn-kubernetes.git
+git clone https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop.git
 ```
 
 2. Run the VM creation script. It'll take some time, since it has to pull a bunch of packages.
