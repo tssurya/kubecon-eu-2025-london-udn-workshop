@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-kubecon-demo-pods
+  namespace: red
+  labels:
+    purpose: kubecon-eu-2025-demo
+spec:
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          k8s.ovn.org/primary-user-defined-network: ""
+    ports:
+    - protocol: TCP
+      port: 8080
+  podSelector: {}
+  policyTypes:
+  - Egress
