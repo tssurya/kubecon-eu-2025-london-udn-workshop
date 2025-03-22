@@ -137,7 +137,7 @@ PRIMARYPODIP=$(kubectl get po -n green -o=json | jq -r '.items[] |
 
 run_cmd kubectl exec -it -n green app-green-0 -- ping -w 2 -c 3 ${PRIMARYPODIP}
 
-header "Connect from app-green-0 to app-green-1 within network-b via Default podIP"
+header "Connect from app-green-0 to app-green-1 within green-network via Default podIP"
 
 # Show that over default network podIPs you cannot reach the pods...
 DEFAULTPODIP=$(oc get po -n green -o=json | jq -r '.items[] | 
@@ -320,6 +320,17 @@ PRIMARYPODIP=$(kubectl get po -n yellow -o=json | jq -r '.items[] |
 run_cmd oc exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 3 ${PRIMARYPODIP}:8080/hostname && echo
 header "Connect from app-red-0 to app-yellow-1 within colored-enterprise network via Primary podIP at 9090"
 run_cmd oc exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 3 ${PRIMARYPODIP}:9090/hostname && echo
+
+PRIMARYPODIP=$(kubectl get po -n blue -o=json | jq -r '.items[] | 
+    select(.metadata.name == "app-blue-1") | 
+    .metadata.annotations["k8s.ovn.org/pod-networks"] | 
+    fromjson | 
+    to_entries[] | 
+    select(.value.role == "primary") |
+    .value.ip_address | 
+    split("/")[0]')
+header "Connect from app-red-0 to app-blue-1 within colored-enterprise network via Primary podIP at 8080"
+run_cmd oc exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 3 ${PRIMARYPODIP}:8080/hostname && echo
 
 header "Create a network policy in namespace red that allows all red pods to talk to ONLY port 8080 for all primary udn pods (blue, green, yellow)"
 run_cmd cat network-policy.yaml

@@ -140,7 +140,19 @@ Now you should be all set to follow the workshop through ! You should move to
 the [pod](#pods) section, or to the [virtualisation](#virtualisation) section.
 
 ## Pods
-TODO
+This part of the demo will get the participants familiar with the concept of
+`UserDefinedNetwork` (UDN). We will explore the following in detail:
+
+1. What is a UDN and a CUDN
+2. Creating UDNs and CUDNs to do network segmentation of a Kubernetes cluster
+3. Creating pods and attaching them to these UDNs
+4. Testing native network isolation across different UDNs
+5. Creating LoadBalancer type services in these UDNs
+6. Testing connectivity of clusterIP, nodePorts and LoadBalancerIP in these UDNs
+7. Creating NetworkPolicy in these UDNs and testing connectivity
+8. Ensuring Ingress and Egress works as expected for these UDN Pods
+9. Concept of multi-homing for a pod in Kubernetes using UDNs
+10. Creating pods in diffeernt UDNs with overlapping podIPs
 
 ## Virtualisation
 This part of the demo will focus on the virtualisation use cases. We will create
