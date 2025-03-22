@@ -8,9 +8,10 @@ metadata:
 spec:
   egress:
   - to:
-    - namespaceSelector:
+    - podSelector:
         matchLabels:
-          k8s.ovn.org/primary-user-defined-network: ""
+          purpose: kubecon-eu-2025-demo
+      namespaceSelector: {}
     ports:
     - protocol: TCP
       port: 8080

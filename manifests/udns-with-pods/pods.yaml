@@ -24,6 +24,14 @@ spec:
         image: k8s.gcr.io/e2e-test-images/agnhost:2.45
         imagePullPolicy: IfNotPresent
         name: agnhost-container
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 10
+          failureThreshold: 3
 ---
 apiVersion: apps/v1
 kind: StatefulSet

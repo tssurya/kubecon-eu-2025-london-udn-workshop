@@ -89,7 +89,7 @@ PRIMARYPODIP=$(kubectl get po -n blue -o=json | jq -r '.items[] |
     split("/")[0]')
 
 #run_cmd oc exec -it -n blue app-blue-0 -- curl --connect-timeout 4 http://${PRIMARYPODIP}:8080/hostname && echo
-run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 3 -c 3 ${PRIMARYPODIP}
+run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 2 -c 3 ${PRIMARYPODIP}
 
 header "Connect from app-blue-0 to app-blue-1 within blue via Default podIP"
 
@@ -103,7 +103,7 @@ DEFAULTPODIP=$(kubectl get po -n blue -o=json | jq -r '.items[] |
     .value.ip_address | 
     split("/")[0]')
 
-run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 3 -c 3 ${DEFAULTPODIP}
+run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 2 -c 3 ${DEFAULTPODIP}
 
 header "Inspect the pod interface in green"
 run_cmd kubectl get pod -n green app-green-0 -oyaml
@@ -124,7 +124,7 @@ if .value.gateway_ip then "\nGateway: \(.value.gateway_ip)" else "" end +
 ([.value.routes[] | "\(.dest) → \(.nextHop)"] | join(", ")) + "\n"'
 read
 
-header "Connect from app-b-0 to app-b-1 within network-b via Primary podIP"
+header "Connect from app-green-0 to app-green-1 within green-network via Primary podIP"
 # Extract pod IP and remove CIDR notation
 PRIMARYPODIP=$(kubectl get po -n green -o=json | jq -r '.items[] | 
     select(.metadata.name == "app-green-1") | 
@@ -135,7 +135,7 @@ PRIMARYPODIP=$(kubectl get po -n green -o=json | jq -r '.items[] |
     .value.ip_address | 
     split("/")[0]')
 
-run_cmd kubectl exec -it -n green app-green-0 -- ping -w 3 -c 3 ${PRIMARYPODIP}
+run_cmd kubectl exec -it -n green app-green-0 -- ping -w 2 -c 3 ${PRIMARYPODIP}
 
 header "Connect from app-green-0 to app-green-1 within network-b via Default podIP"
 
@@ -149,7 +149,7 @@ DEFAULTPODIP=$(oc get po -n green -o=json | jq -r '.items[] |
     .value.ip_address | 
     split("/")[0]')
 
-run_cmd kubectl exec -it -n green app-green-0 -- ping -w 3 -c 3 ${DEFAULTPODIP}
+run_cmd kubectl exec -it -n green app-green-0 -- ping -w 2 -c 3 ${DEFAULTPODIP}
 
 header "Ensure there are zero (Admin)NetworkPolicies in your cluster"
 run_cmd oc get anp
@@ -172,7 +172,7 @@ select(.value.role == "primary") |
 run_cmd eval "$NETWORK_CMD"
 
 header "Connect from pod in blue to pod in green"
-run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 3 -c 3 ${PRIMARYPODIP}
+run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 2 -c 3 ${PRIMARYPODIP}
 
 header "Connect from pod in red to pod in yellow"
 # Extract pod IP and remove CIDR notation
@@ -184,10 +184,13 @@ PRIMARYPODIP=$(kubectl get po -n yellow -o=json | jq -r '.items[] |
     select(.value.role == "primary") |
     .value.ip_address | 
     split("/")[0]')
-run_cmd kubectl exec -it -n red app-red-0 -c agnhost-container-8080 -- ping -w 3 -c 3 ${PRIMARYPODIP}
+run_cmd kubectl exec -it -n red app-red-0 -c agnhost-container-8080 -- ping -w 2 -c 3 ${PRIMARYPODIP}
+
+header "Services... QUIZ TIME!"
 
 # SERVICES
 # ENSURE LOAD BALANCER KIND IS RUNNING
+header "Start kind load balancer service"
 
 header "Create two loadbalancer type services - one in BLUE and GREEN namespaces which expose these statefulsets"
 run_cmd kubectl apply -f services.yaml
@@ -232,7 +235,15 @@ SVCIP=$(kubectl get nodes ovn-worker2 -o jsonpath='{.status.addresses[?(@.type==
 NODEPORT=$(kubectl get svc -n green service-green -o jsonpath='{.spec.ports[0].nodePort}')
 run_cmd curl --connect-timeout 3 http://${SVCIP}:${NODEPORT}/hostname && echo
 
-# LOAD BALANCERS TBD
+# LOAD BALANCERS
+
+header "Connect from external client to blue network's loadbalancer"
+LBIP=$(kubectl get svc -n blue service-blue -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+run_cmd curl --connect-timeout 3 http://${LBIP}:80/hostname && echo
+
+header "Connect from external client to green network's loadbalancer"
+LBIP=$(kubectl get svc -n green service-green -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+run_cmd curl --connect-timeout 3 http://${LBIP}:80/hostname && echo
 
 
 ## PAUSE HERE TO EXPLAIN THAT DNS IS NOT PER NETWORK; COREDNS IS PART OF DEFAULT NETWORK
@@ -240,14 +251,14 @@ run_cmd curl --connect-timeout 3 http://${SVCIP}:${NODEPORT}/hostname && echo
 header "Connect to KAPI Server from blue-network and green-network"
 run_cmd kubectl exec -it -n blue app-blue-0 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
 run_cmd kubectl exec -it -n green app-green-0 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
-run_cmd kubectl exec -it -n red app-red-0 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
-run_cmd kubectl exec -it -n yellow app-yellow-0 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
+run_cmd kubectl exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
+run_cmd kubectl exec -it -n yellow app-yellow-0 -c agnhost-container-8080 -- curl --connect-timeout 4 kubernetes.default.svc.cluster.local:443 && echo
 
 ## EXTERNAL DNS GOOGLE.COM EGRESS/NORTH-SOUTH
 header "Connect from app-blue-0 to internet"
-run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 3 -c 3 8.8.8.8
+run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 2 -c 3 8.8.8.8
 header "Connect from app-green-0 to internet"
-run_cmd kubectl exec -it -n green app-green-0 -- ping -w 3 -c 3 google.com
+run_cmd kubectl exec -it -n green app-green-0 -- ping -w 2 -c 3 google.com
 
 ## OVERLAPPING SUBNETS
 header "Create overlapping-udn and pods inside it"
@@ -271,11 +282,13 @@ select(.value.role == "primary") |
 run_cmd eval "$NETWORK_CMD"
 
 header "Connect from app-blue-0 to internet"
-run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 3 -c 3 8.8.8.8
+run_cmd kubectl exec -it -n blue app-blue-0 -- ping -w 2 -c 3 8.8.8.8
 header "Connect from app-overlapping-blue-0 to internet"
-run_cmd kubectl exec -it -n overlapping-with-blue app-overlapping-blue-0 -- ping -w 3 -c 3 8.8.8.8
+run_cmd kubectl exec -it -n overlapping-with-blue app-overlapping-blue-0 -- ping -w 2 -c 3 8.8.8.8
 
 ## NETWORK POLICIES ARE ALSO network scoped
+
+header "Network Policies... QUIZ TIME!"
 
 header "Ensure there are zero NetworkPolicies in your cluster"
 run_cmd oc get networkpolicies -A
@@ -331,5 +344,7 @@ header "Connect from app-red-0 to app-blue-1 within colored-enterprise network v
 run_cmd oc exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 3 ${PRIMARYPODIP}:8080/hostname && echo
 
 ## TWO BUGS TBD
-# GREEN MISBEHAVES FOR KAPI/DNS
-# NETPOL SCENARIO NOT WORKING AS EXPECTED
+# GREEN MISBEHAVES FOR KAPI/DNS --> this is fine as long as we don't delete and re-create
+# NETPOL SCENARIO NOT WORKING AS EXPECTED ---> got around this bug by selecting all namespaces and using pod label selectors
+
+## SECONDARY NETWORKS TOUCH AND LEAVE
