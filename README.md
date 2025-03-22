@@ -154,6 +154,12 @@ This part of the demo will get the participants familiar with the concept of
 9. Concept of multi-homing for a pod in Kubernetes using UDNs
 10. Creating pods in diffeernt UDNs with overlapping podIPs
 
+All the commands required to be executed on your KIND cluster are
+provided [here](https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/blob/main/manifests/udns-with-pods/commands-cheatsheet-for-participants.md).
+
+Workshop instruction manual that will be followed can be found
+[here](https://github.com/tssurya/kubecon-eu-2025-london-udn-workshop/blob/main/manifests/udns-with-pods/workshop-instructions-script.sh).
+
 ## Virtualisation
 This part of the demo will focus on the virtualisation use cases. We will create
 a cluster UDN, spanning across multiple namespaces, start a VM in each namespace,
