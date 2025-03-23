@@ -123,7 +123,7 @@ git clone https://github.com/ovn-kubernetes/ovn-kubernetes.git
 2. Run the kind cluster creation script. This will give you a kind cluster with the UDN feature installed,
 and KubeVirt deployed.
 ```sh
-pushd ovn-kubernetes/contrib/ && ./kind.sh -ic -mne -nse -i6 -ikv && popd
+pushd ovn-kubernetes/contrib/ && ./kind.sh -ds -ic -mne -nse -gm local -ikv && popd
 ```
 
 3. Export the kind cluster kubeconfig

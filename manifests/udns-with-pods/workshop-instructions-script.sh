@@ -19,7 +19,7 @@ run_cmd kubectl version
 header "KIND Cluster Setup"
 run_cmd kubectl get nodes -owide
 run_cmd kubectl get pods -n ovn-kubernetes -owide
-# add command to fetch the kubevirt related pods as well
+run_cmd kubectl get pods -n kubevirt -owide
 
 header "Create four namespaces"
 run_cmd kubectl apply -f ns.yaml
@@ -54,6 +54,7 @@ run_cmd kubectl get pods -A -l purpose=kubecon-eu-2025-demo -owide
 
 header "Inspect the pod app-blue-0 in blue-network"
 run_cmd kubectl get pod -n blue app-blue-0 -oyaml
+# SHOW THE LIVENESS PROBE SUCCEEDING ON THIS POD
 run_cmd kubectl exec -it -n blue app-blue-0 -- ip a
 run_cmd kubectl exec -it -n blue app-blue-0 -- ip r
 
@@ -293,7 +294,7 @@ header "Network Policies... QUIZ TIME!"
 header "Ensure there are zero NetworkPolicies in your cluster"
 run_cmd oc get networkpolicies -A
 
-header "Inspect the pods in blue and overlapping-with-blue networks"
+header "Inspect the pods in colored-enterprise and blue-network"
 # Save the complex command as a variable
 NETWORK_CMD='printf "%-9s %-11s %-12s %-16s\n" "PODNAME" "NAMESPACE" "NETWORK" "POD_IP" && { oc get po -n red -o=json; oc get po -n yellow -o=json; oc get po -n blue -o=json; } | jq -r '\''
 .items[] | 
@@ -336,6 +337,15 @@ header "Create a network policy in namespace red that allows all red pods to tal
 run_cmd cat network-policy.yaml
 run_cmd kubectl apply -f network-policy.yaml
 run_cmd kubectl get networkpolicy -n red
+
+PRIMARYPODIP=$(kubectl get po -n yellow -o=json | jq -r '.items[] | 
+    select(.metadata.name == "app-yellow-1") | 
+    .metadata.annotations["k8s.ovn.org/pod-networks"] | 
+    fromjson | 
+    to_entries[] | 
+    select(.value.role == "primary") |
+    .value.ip_address | 
+    split("/")[0]')
 
 header "Connect from app-red-0 to app-yellow-1 within colored-enterprise network via Primary podIP at 8080"
 run_cmd oc exec -it -n red app-red-0 -c agnhost-container-8080 -- curl --connect-timeout 3 ${PRIMARYPODIP}:8080/hostname && echo
