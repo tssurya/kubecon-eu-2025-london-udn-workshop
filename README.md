@@ -1,6 +1,28 @@
 # kubecon-eu-2025-london-udn-workshop
 
 ## Requirements
+You can opt to run the workshop directly on your laptop (using `kind`), or run it in a VM, with all the
+dependencies, where the kind cluster will be installed.
+
+In the following sections you'll find instructions for both these methods.
+
+### Running the workshop directly on your laptop
+You'll require the following packages to run the workshop directly on your laptor (directly on kind):
+- git
+- wget
+- curl
+- jq
+- openssl
+- golang
+- docker or podman
+- python3-pip
+
+Furthermore, you'll have to install the following CLI tools:
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux)
+- [virtctl](https://kubevirt.io/user-guide/user_workloads/virtctl_client_tool/#download-the-virtctl-client-tool)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installing-from-release-binaries)
+
+### Running the workshop from a VM
 This workshop is intended to be executed on a VM, so you don't have to pollute your local environment.
 
 You'll require the following packages to run it:
