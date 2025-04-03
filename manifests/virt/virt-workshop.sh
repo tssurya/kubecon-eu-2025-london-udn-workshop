@@ -18,14 +18,14 @@ run_cmd virtctl version
 run_cmd kubectl get pods -nkubevirt
 
 header "Create red and blue namespaces; connect them via cluster UDN"
-run_cmd kubectl apply -f ../manifests/virt/01-udn.yaml
+run_cmd kubectl apply -f 01-udn.yaml
 run_cmd kubectl get ns -owide -l k8s.ovn.org/primary-user-defined-network
 
 header "Inspect the cluster UDN for virtualization workloads"
 run_cmd kubectl get clusteruserdefinednetwork happy-tenant -oyaml
 
 header "Create the VMs on the namespaces connected by the cluster UDN"
-run_cmd kubectl apply -f ../manifests/virt/02-workloads.yaml
+run_cmd kubectl apply -f 02-workloads.yaml
 
 header "Wait for the VMs to be ready"
 run_cmd kubectl wait vmi -nred-namespace red --for=jsonpath='{.status.phase}'=Running
