@@ -22,7 +22,7 @@ run_cmd kubectl apply -f ../manifests/virt/01-udn.yaml
 run_cmd kubectl get ns -owide -l k8s.ovn.org/primary-user-defined-network
 
 header "Inspect the cluster UDN for virtualization workloads"
-run_cmd kubectl get clusterserdefinednetwork happy-tenant -oyaml
+run_cmd kubectl get clusteruserdefinednetwork happy-tenant -oyaml
 
 header "Create the VMs on the namespaces connected by the cluster UDN"
 run_cmd kubectl apply -f ../manifests/virt/02-workloads.yaml
